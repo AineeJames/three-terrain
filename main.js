@@ -11,7 +11,6 @@ let fpsGraph
 
 let noise = new Noise(Math.random());
 let clock = new THREE.Clock();
-console.log(clock)
 
 let PARAMS = {
   sunPos: 90,
@@ -29,22 +28,12 @@ window.onload = (event) => {
   animate()
 }
 
-/*function updatePlane() {
-  const vertCount = pgeo.attributes.position.count
-  for (let i = 0; i < vertCount; i++) {
-    const x = pgeo.attributes.position.getX(i)
-    const y = pgeo.attributes.position.getY(i)
-    const zval = PARAMS.mag1*noise.simplex2(x/100, y/100)
-                +PARAMS.mag2*noise.simplex2((x+200)/50, y/50)*Math.pow(PARAMS.complexity, 1)
-                +PARAMS.mag3*noise.simplex2((x+400)/25, y/25)*Math.pow(PARAMS.complexity, 2)
-                +PARAMS.mag4*noise.simplex2((x+800)/12.5, y/12.5)*Math.pow(PARAMS.complexity, 3)
-                +PARAMS.mag5*noise.simplex2((x+1600)/6.25, y/6.25)*Math.pow(PARAMS.complexity, 4)
-                +PARAMS.mag6*noise.simplex2((x+3200)/3.125, y/3.125)*Math.pow(PARAMS.complexity, 5)
-    pgeo.attributes.position.setZ(i, zval)
-  }
-  pgeo.computeVertexNormals()
-  pgeo.attributes.position.needsUpdate = true
-}*/
+window.addEventListener( 'resize', onWindowResize, false );
+function onWindowResize(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 function updatePlane() {
   const vertCount = pgeo.attributes.position.count
@@ -75,7 +64,7 @@ function threeInit() {
 
   // place a camera in the scene
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 )
-  camera.position.set( 100, 60, 100 )
+  camera.position.set( 120, 60, 120 )
   scene.add( camera )
 
   // allow 3js controls
@@ -97,7 +86,6 @@ function threeInit() {
   plane.receiveShadow = true
   plane.castShadow = true
   scene.add( plane )
-
 }
 
 function animate() {
@@ -126,12 +114,24 @@ function uiInit() {
 
   // folder for terrain controls
   const terrainCtrls = ui.addFolder({
-    title: "Terrain Controls"
+    title: "Terrain Controls",
   })
   terrainCtrls.addButton({
     title: 'Randomize Seed',
   }).on('click', function(event) {
     noise.seed(Math.random())
+  })
+  terrainCtrls.addButton({
+    title: "Randomize Settings",
+  }).on('click', function( event ) {
+    PARAMS.complexity = (Math.random() * (1 - 0) + 0).toFixed(2)
+    PARAMS.octaves = Math.random() * (10 - 1) + 1
+    PARAMS.baseScale = Math.random() * (10 - 1) + 1
+    PARAMS.shiftSpeed = Math.random() * (25 - 0) + 0
+    PARAMS.color = `0x${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`
+    plane.material.wireframe = Math.random() < 0.5 ? false : true
+    console.log(PARAMS.wireframe)
+    ui.refresh()
   })
   terrainCtrls.addInput(PARAMS, 'complexity', {
     label: "Intensity",
