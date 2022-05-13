@@ -8,7 +8,7 @@ import {Pane} from 'tweakpane'
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
 import { Noise } from 'noisejs'
 
-let scene, renderer, camera, composer, controls
+let scene, renderer, camera, composer, bloomPass, controls
 let sun, pgeo, pmat, plane
 let fpsGraph
 
@@ -80,10 +80,10 @@ function threeInit() {
     bloomThreshold: 0,
     bloomRadius: 0.2,
   };
-  const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-          bloomPass.threshold = params.bloomThreshold;
-          bloomPass.strength = params.bloomStrength;
-          bloomPass.radius = params.bloomRadius;
+  bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ) );
+  bloomPass.threshold = params.bloomThreshold;
+  bloomPass.strength = params.bloomStrength;
+  bloomPass.radius = params.bloomRadius;
   composer.addPass(bloomPass);
 
   // allow 3js controls
@@ -175,7 +175,8 @@ function uiInit() {
     max: 25,
     step: 1,
   })
- terrainCtrls.addInput(PARAMS, 'color', {
+  terrainCtrls.addSeparator();
+  terrainCtrls.addInput(PARAMS, 'color', {
     label: "Color",
     view: 'color',
     picker: 'inline',
@@ -196,5 +197,24 @@ function uiInit() {
   }).on('change', function( event ) {
     sun.position.x = PARAMS.sunDist * Math.cos( event.value * Math.PI / 180)
     sun.position.y = PARAMS.sunDist * Math.sin( event.value * Math.PI / 180) / 2
+  })
+  camCtrls.addButton({
+    title: "Randomize Bloom",
+  }).on('click', function( event ) {
+    bloomPass.radius = (Math.random() * (5 - 0) + 0).toFixed(1)
+    bloomPass.strength = (Math.random() * (5 - 0) + 0).toFixed(1)
+    ui.refresh()
+  })
+  camCtrls.addInput(bloomPass, 'radius', {
+    label: "Bloom Radius",
+    min: 0,
+    max: 5,
+    step: 0.1,
+  })
+  camCtrls.addInput(bloomPass, 'strength', {
+    label: "Bloom Strength",
+    min: 0,
+    max: 5,
+    step: 0.1,
   })
 }
