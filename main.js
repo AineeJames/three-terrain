@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import {Pane} from 'tweakpane'
+import { Pane } from 'tweakpane'
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
 import { Noise } from 'noisejs'
 
@@ -59,7 +59,6 @@ function threeInit() {
 
   // create the renderer and set it's params
   renderer = new THREE.WebGLRenderer({ 
-    antialias: true,
     canvas: document.querySelector( '#scene' ),
   })
   renderer.setPixelRatio( window.devicePixelRatio )
@@ -92,7 +91,6 @@ function threeInit() {
   //create the sun
   sun = new THREE.PointLight( 0xffffff, 0.8, 1000 )
   sun.position.set( 0, PARAMS.sunDist, 0 )
-  sun.castShadow = true
   scene.add( sun )
 
   const light = new THREE.AmbientLight( 0x040404 ); // soft white light
@@ -102,8 +100,6 @@ function threeInit() {
   pmat = new THREE.MeshPhongMaterial({color: PARAMS.color, wireframe: true})
   plane = new THREE.Mesh(pgeo, pmat)
   plane.rotation.x = - Math.PI / 2
-  plane.receiveShadow = true
-  plane.castShadow = true
   scene.add( plane )
 }
 
