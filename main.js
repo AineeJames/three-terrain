@@ -1,11 +1,14 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {Pane} from 'tweakpane'
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
 import { Noise } from 'noisejs'
 
-let scene, renderer, camera, controls
+let scene, renderer, camera, composer, controls
 let sun, pgeo, pmat, plane
 let fpsGraph
 
@@ -67,6 +70,22 @@ function threeInit() {
   camera.position.set( 120, 60, 120 )
   scene.add( camera )
 
+
+  composer = new EffectComposer( renderer );
+  const renderPass = new RenderPass( scene, camera );
+  composer.addPass( renderPass );
+  const params = {
+    exposure: 1,
+    bloomStrength: 0.6,
+    bloomThreshold: 0,
+    bloomRadius: 0.2,
+  };
+  const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+          bloomPass.threshold = params.bloomThreshold;
+          bloomPass.strength = params.bloomStrength;
+          bloomPass.radius = params.bloomRadius;
+  composer.addPass(bloomPass);
+
   // allow 3js controls
   controls = new OrbitControls( camera, renderer.domElement )
 
@@ -96,7 +115,7 @@ function animate() {
 
   requestAnimationFrame( animate )
 	controls.update()
-	renderer.render( scene, camera )
+  composer.render()
 
   fpsGraph.end()
 }
@@ -130,7 +149,6 @@ function uiInit() {
     PARAMS.shiftSpeed = Math.random() * (25 - 0) + 0
     PARAMS.color = `0x${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`
     plane.material.wireframe = Math.random() < 0.5 ? false : true
-    console.log(PARAMS.wireframe)
     ui.refresh()
   })
   terrainCtrls.addInput(PARAMS, 'complexity', {
