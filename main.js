@@ -18,10 +18,10 @@ let clock = new THREE.Clock();
 let PARAMS = {
   sunPos: 90,
   sunDist: 500,
-  complexity: 0.5,
-  octaves: 6,
-  color: 0xffffff,
-  baseScale: 7,
+  complexity: 0.67,
+  octaves: 5,
+  color: 0xff0004,
+  baseScale: 5,
   shiftSpeed: 5,
 }
 
@@ -99,7 +99,7 @@ function threeInit() {
   scene.add( light );
 
   pgeo = new THREE.PlaneBufferGeometry(100, 100, 100, 100)
-  pmat = new THREE.MeshPhongMaterial({color: 0x13fa03, wireframe: false})
+  pmat = new THREE.MeshPhongMaterial({color: PARAMS.color, wireframe: true})
   plane = new THREE.Mesh(pgeo, pmat)
   plane.rotation.x = - Math.PI / 2
   plane.receiveShadow = true
