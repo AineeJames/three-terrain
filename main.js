@@ -4,11 +4,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { PixelShader } from 'three/examples/jsm/shaders/PixelShader.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { Pane } from 'tweakpane'
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
 import { Noise } from 'noisejs'
 
-let scene, renderer, camera, composer, bloomPass, controls
+let scene, renderer, camera, composer, bloomPass, pixelPass, controls
 let sun, pgeo, pmat, plane
 let fpsGraph
 
@@ -23,6 +25,7 @@ let PARAMS = {
   color: 0xff0004,
   baseScale: 5,
   shiftSpeed: 5,
+  pixelSize: 0,
 }
 
 window.onload = (event) => {
@@ -84,6 +87,11 @@ function threeInit() {
   bloomPass.strength = params.bloomStrength;
   bloomPass.radius = params.bloomRadius;
   composer.addPass(bloomPass);
+  pixelPass = new ShaderPass( PixelShader );
+  pixelPass.uniforms[ 'resolution' ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+	pixelPass.uniforms[ 'resolution' ].value.multiplyScalar( window.devicePixelRatio );
+  pixelPass.uniforms[ 'pixelSize' ].value = 1;
+  composer.addPass(pixelPass)
 
   // allow 3js controls
   controls = new OrbitControls( camera, renderer.domElement )
@@ -213,4 +221,11 @@ function uiInit() {
     max: 5,
     step: 0.1,
   })
+  camCtrls.addInput(pixelPass.uniforms[ 'pixelSize' ], 'value', {
+    label: "Pixel Size",
+    min: 1,
+    max: 20,
+   step: 1,
+  })
 }
+
